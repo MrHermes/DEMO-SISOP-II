@@ -20,21 +20,12 @@ int main(int argc, char** argv){
             exit(EXIT_FAILURE);
     }
     if (child_id == 0){
-        execlp("bin/bash", "bash", "-c", "ps | grep daemon",  NULL);
+        execlp("bash", "bash", "-c", "ps aux | grep daemon > output/daemon-process.txt",  NULL);
     }
+    // sedangkan parent ga ngelakuin apa2 jadi dimatiin pada no 3
     else {
         wait(&status);
-        execlp("mkdir", "mkdir", "output" ,NULL);
-    }
-
-    //testing
-    child_id=fork();
-
-    if (child_id < 0){
-            exit(EXIT_FAILURE);
-    }
-    if (child_id == 0){
-        execlp("touch", "touch", "output/total-daemon-process.txt" ,NULL);
+        execlp("bash", "bash", "-c", "cat output/daemon-process.txt | wc -l > output/total-daemon-process.txt",  NULL);
     }
 
     pid_t cid = fork();
@@ -42,7 +33,10 @@ int main(int argc, char** argv){
         exit(EXIT_FAILURE);
     }
     if (cid == 0){
-        execlp("bin/chmod", "chmod", "+x", "total-daemon-process.txt", NULL);
+        execlp("chmod", "chmod", "u+x", "daemon-process.txt", NULL);
+        exit(0);
+    }else {
+        execlp("chown", "chown", "root:root", "total-daemon-process.txt", NULL);
         exit(0);
     }
 
@@ -51,8 +45,11 @@ int main(int argc, char** argv){
         exit(EXIT_FAILURE);
     }
     if (cid == 0){
-        execlp("rm", "rm", "ouput/total-daemon-process.txt", NULL);
+        execlp("rm", "rm", "output/daemon-process.txt",  NULL);
+        // execlp("bash", "bash", "-c", "rm *daemon-process.txt",  NULL);
         exit(0);
+    }else {
+        execlp("rmdir", "rmdir", "ouput", NULL);
     }
 
 }
